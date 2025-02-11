@@ -1,0 +1,137 @@
+image: docker:20.10.16
+
+services:
+  - docker:20.10.16-dind
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  MONGODB_URI: $MONGODB_URI  # MongoDB Atlas URI
+  DOCKER_REGISTRY: $CI_REGISTRY
+  BACKEND_IMAGE: $CI_REGISTRY_IMAGE/backend
+  FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend
+
+stages:
+  - installing
+
+backend-install:
+  stage: installing
+  image: node:18
+  script:
+    - cd backend
+    - npm ci
+  artifacts:
+    paths:
+      - backend/node_modules/
+
+frontend-install:
+  stage: installing
+  image: node:18
+  script:
+    - cd frontend
+    - npm ci
+  artifacts:
+    paths:
+      - frontend/node_modules/
+
+stages:
+  - test
+
+backend-test:
+  stage: test
+  image: node:18
+  script:
+    - cd backend
+    - npm test
+  dependencies:
+    - backend-install
+
+frontend-test:
+  stage: test
+  image: node:18
+  script:
+    - cd frontend
+    - npm run test
+  dependencies:
+    - frontend-install
+
+
+stages:
+  - docker
+
+docker-build-backend:
+  stage: docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $BACKEND_IMAGE:$CI_COMMIT_SHA -t $BACKEND_IMAGE:latest backend/
+    - docker push $BACKEND_IMAGE:$CI_COMMIT_SHA
+    - docker push $BACKEND_IMAGE:latest
+
+docker-build-frontend:
+  stage: docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $FRONTEND_IMAGE:$CI_COMMIT_SHA -t $FRONTEND_IMAGE:latest frontend/
+    - docker push $FRONTEND_IMAGE:$CI_COMMIT_SHA
+    - docker push $FRONTEND_IMAGE:latest
+
+stages: 
+  - deploy-staging
+
+deploy-backend-staging:
+  stage: deploy-staging
+  image: ubuntu:latest
+  script:
+    - apt-get update && apt-get install -y curl
+    - curl -fsSL https://railway.app/install.sh | sh
+    - railway up --environment staging
+  environment:
+    name: staging
+    url: $BACKEND_URL_STAGING
+  only:
+    - develop
+
+deploy-frontend-staging:
+  stage: deploy-staging
+  image: node:18
+  script:
+    - npm install -g netlify-cli
+    - cd frontend
+    - netlify deploy --site $NETLIFY_SITE_ID_STAGING --auth $NETLIFY_AUTH_TOKEN --prod --dir=dist
+  environment:
+    name: staging
+    url: $FRONTEND_URL_STAGING
+  only:
+    - develop
+
+
+stages:
+  - deploy-prod
+
+deploy-backend-prod:
+  stage: deploy-prod
+  image: ubuntu:latest
+  script:
+    - apt-get update && apt-get install -y curl
+    - curl -fsSL https://railway.app/install.sh | sh
+    - railway up --environment production
+  environment:
+    name: production
+    url: $BACKEND_URL_PROD
+  only:
+    - main
+  when: manual
+
+deploy-frontend-prod:
+  stage: deploy-prod
+  image: node:18
+  script:
+    - npm install -g netlify-cli
+    - cd frontend
+    - netlify deploy --site $NETLIFY_SITE_ID_PROD --auth $NETLIFY_AUTH_TOKEN --prod --dir=dist
+  environment:
+    name: production
+    url: $FRONTEND_URL_PROD
+  only:
+    - main
+  when: manual
+

@@ -11,7 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
-*.gitlab-ci.yml
+# *.gitlab-ci.yml
 .bolt
 
 
