@@ -90,6 +90,7 @@ deploy-frontend-staging:
   script:
     - npm install -g netlify-cli
     - cd frontend
+    - npm run build
     - netlify deploy --site $NETLIFY_SITE_ID_STAGING --auth $NETLIFY_AUTH_TOKEN --prod --dir=dist
   environment:
     name: staging
@@ -117,6 +118,7 @@ deploy-frontend-prod:
   script:
     - npm install -g netlify-cli
     - cd frontend
+    - npm run build
     - netlify deploy --site $NETLIFY_SITE_ID_PROD --auth $NETLIFY_AUTH_TOKEN --prod --dir=dist
   environment:
     name: production
