@@ -11,10 +11,14 @@ variables:
   FRONTEND_IMAGE: $CI_REGISTRY_IMAGE/frontend
 
 stages:
-  - installing
+  - install
+  - test
+  - docker
+  - deploy-staging
+  - deploy-prod
 
 backend-install:
-  stage: installing
+  stage: install
   image: node:18
   script:
     - cd backend
@@ -24,7 +28,7 @@ backend-install:
       - backend/node_modules/
 
 frontend-install:
-  stage: installing
+  stage: install
   image: node:18
   script:
     - cd frontend
@@ -32,9 +36,6 @@ frontend-install:
   artifacts:
     paths:
       - frontend/node_modules/
-
-stages:
-  - test
 
 backend-test:
   stage: test
@@ -54,10 +55,6 @@ frontend-test:
   dependencies:
     - frontend-install
 
-
-stages:
-  - docker
-
 docker-build-backend:
   stage: docker
   script:
@@ -73,9 +70,6 @@ docker-build-frontend:
     - docker build -t $FRONTEND_IMAGE:$CI_COMMIT_SHA -t $FRONTEND_IMAGE:latest frontend/
     - docker push $FRONTEND_IMAGE:$CI_COMMIT_SHA
     - docker push $FRONTEND_IMAGE:latest
-
-stages: 
-  - deploy-staging
 
 deploy-backend-staging:
   stage: deploy-staging
@@ -102,10 +96,6 @@ deploy-frontend-staging:
     url: $FRONTEND_URL_STAGING
   only:
     - develop
-
-
-stages:
-  - deploy-prod
 
 deploy-backend-prod:
   stage: deploy-prod
@@ -134,4 +124,3 @@ deploy-frontend-prod:
   only:
     - main
   when: manual
-
