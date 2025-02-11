@@ -51,7 +51,7 @@ frontend-test:
   image: node:18
   script:
     - cd frontend
-    - npm run test
+    - npm test -- --ci --coverage
   dependencies:
     - frontend-install
 
