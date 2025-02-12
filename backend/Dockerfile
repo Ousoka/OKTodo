@@ -1,29 +1,12 @@
-# FROM node:18-alpine
+FROM node:18-alpine
 
-# WORKDIR /app
-
-# COPY package*.json ./
-# RUN npm ci
-
-# COPY . .
-
-# EXPOSE 5000
-
-# CMD ["npm", "start"]
-
-
-# Use Node.js image
-FROM node:18
-
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY backend/package.json /app
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
-# Copy all backend files
-COPY backend/ /app
+COPY . .
 
-# Start the application
+EXPOSE 5000
+
 CMD ["npm", "start"]
