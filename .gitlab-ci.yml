@@ -109,8 +109,8 @@ deploy-backend-prod:
     - curl -fsSL https://railway.app/install.sh | sh
     # - echo $RAILWAY_TOKEN | railway login  # FIXED LOGIN
     - railway status  # Debugging: Check available services
-    - railway up --service $RAILWAY_SERVICE --environment production  # Specify service
-    - railway up --environment production
+    # - railway up --service $RAILWAY_SERVICE --environment production  # Specify service
+    - railway up --service nodejs --environment production
   environment:
     name: production
     url: $BACKEND_URL_PROD
