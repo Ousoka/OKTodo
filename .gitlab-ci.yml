@@ -77,7 +77,7 @@ deploy-backend-staging:
   script:
     - apt-get update && apt-get install -y curl
     - curl -fsSL https://railway.app/install.sh | sh
-    - echo $RAILWAY_TOKEN | railway login  # FIXED LOGIN
+    # - echo $RAILWAY_TOKEN | railway login  # FIXED LOGIN
     - railway up --environment staging
   environment:
     name: staging
@@ -105,7 +105,7 @@ deploy-backend-prod:
   script:
     - apt-get update && apt-get install -y curl
     - curl -fsSL https://railway.app/install.sh | sh
-    - echo $RAILWAY_TOKEN | railway login  # FIXED LOGIN
+    # - echo $RAILWAY_TOKEN | railway login  # FIXED LOGIN
     - railway up --environment production
   environment:
     name: production
