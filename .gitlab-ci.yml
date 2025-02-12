@@ -107,6 +107,7 @@ deploy-backend-prod:
     - apt-get update && apt-get install -y curl
     - curl -fsSL https://railway.app/install.sh | sh
     - railway login --token $RAILWAY_TOKEN  # Use token for authentication
+    - echo $RAILWAY_TOKEN
     - railway up --environment production
   environment:
     name: production
